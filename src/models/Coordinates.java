@@ -19,4 +19,12 @@ public class Coordinates {
     public void setY(Long y) {
         this.y = y;
     }
+
+    @Override
+    protected Coordinates clone() throws CloneNotSupportedException {
+        Coordinates coordinates = new Coordinates();
+        coordinates.setX(this.getX());
+        coordinates.setY(this.getY());
+        return coordinates;
+    }
 }

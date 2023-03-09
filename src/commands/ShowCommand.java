@@ -1,5 +1,9 @@
 package commands;
 
+import commands.request.RequestType;
+import managers.commandManager.CommandManager;
+import commands.request.CommandRequest;
+
 public class ShowCommand extends Command{
 
     public ShowCommand() {
@@ -8,7 +12,9 @@ public class ShowCommand extends Command{
     }
 
     @Override
-    public void execute() {
-
+    public CommandRequest execute(CommandManager commandManager, String arguments) {
+        CommandRequest commandRequest = new CommandRequest();
+        commandRequest.setRequestType(RequestType.GET);
+        return commandRequest;
     }
 }

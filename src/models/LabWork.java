@@ -1,16 +1,8 @@
 package models;
 
-import models.utils.GeneratorID;
-
 import java.time.LocalDate;
 
 public class LabWork {
-    public LabWork() {
-        this.id = GeneratorID.newId();
-        this.creationDate = LocalDate.now();
-    }
-
-
     private Integer id; //Поле не может быть null, Значение поля должно быть больше 0, Значение этого поля должно быть уникальным, Значение этого поля должно генерироваться автоматически
     private String name; //Поле не может быть null, Строка не может быть пустой
     private Coordinates coordinates; //Поле не может быть null
@@ -28,8 +20,8 @@ public class LabWork {
         return name;
     }
 
-    public Coordinates getCoordinates() {
-        return coordinates;
+    public Coordinates getCoordinates() throws CloneNotSupportedException {
+        return coordinates.clone();
     }
 
     public LocalDate getCreationDate() {
@@ -48,8 +40,8 @@ public class LabWork {
         return difficulty;
     }
 
-    public Person getAuthor() {
-        return author;
+    public Person getAuthor() throws CloneNotSupportedException {
+        return author.clone();
     }
 
     public void setId(Integer id) {
@@ -60,8 +52,8 @@ public class LabWork {
         this.name = name;
     }
 
-    public void setCoordinates(Coordinates coordinates) {
-        this.coordinates = coordinates;
+    public void setCoordinates(Coordinates coordinates) throws CloneNotSupportedException {
+        this.coordinates = coordinates.clone();
     }
 
     public void setCreationDate(LocalDate creationDate) {
@@ -75,12 +67,39 @@ public class LabWork {
     public void setMaximumPoint(Integer maximumPoint) {
         this.maximumPoint = maximumPoint;
     }
-
     public void setDifficulty(Difficulty difficulty) {
         this.difficulty = difficulty;
     }
 
-    public void setAuthor(Person author) {
-        this.author = author;
+    public void setAuthor(Person author) throws CloneNotSupportedException {
+        this.author = author.clone();
+    }
+
+
+    public void cloneShallow(LabWork labWorkCopy) throws CloneNotSupportedException{
+
+        this.setAuthor(labWorkCopy.getAuthor());
+        this.setCoordinates(labWorkCopy.getCoordinates());
+        this.setDifficulty(labWorkCopy.getDifficulty());
+        this.setMinimalPoint(labWorkCopy.getMinimalPoint());
+        this.setMaximumPoint(labWorkCopy.getMaximumPoint());
+        this.setName(labWorkCopy.getName());
+    }
+
+    @Override
+    public LabWork clone() throws CloneNotSupportedException {
+        LabWork labWork = new LabWork();
+
+        labWork.setId(this.getId());
+        labWork.setCreationDate(this.getCreationDate());
+
+        labWork.setAuthor(this.getAuthor());
+        labWork.setCoordinates(this.getCoordinates());
+        labWork.setDifficulty(this.getDifficulty());
+        labWork.setMinimalPoint(this.getMinimalPoint());
+        labWork.setMaximumPoint(this.getMaximumPoint());
+        labWork.setName(this.getName());
+
+        return labWork;
     }
 }

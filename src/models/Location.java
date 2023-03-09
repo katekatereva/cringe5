@@ -28,4 +28,12 @@ public class Location {
     public Long getZ() {
         return z;
     }
+
+    @Override
+    public Location clone() throws CloneNotSupportedException {
+        Location location = new Location();
+        location.setX(this.getX());
+        location.setY(this.getY());
+        return location;
+    }
 }

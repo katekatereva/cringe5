@@ -33,8 +33,8 @@ public class Person {
         return nationality;
     }
 
-    public Location getLocation() {
-        return location;
+    public Location getLocation() throws CloneNotSupportedException {
+        return location.clone();
     }
 
     public void setName(String name) {
@@ -57,7 +57,21 @@ public class Person {
         this.nationality = nationality;
     }
 
-    public void setLocation(Location location) {
-        this.location = location;
+    public void setLocation(Location location) throws CloneNotSupportedException {
+        this.location = location.clone();
+    }
+
+    @Override
+    protected Person clone() throws CloneNotSupportedException {
+        Person person = new Person();
+
+        person.setBirthday(this.getBirthday());
+        person.setEyeColor(this.getEyeColor());
+        person.setLocation(this.getLocation());
+        person.setName(this.getName());
+        person.setNationality(this.getNationality());
+        person.setHairColor(this.getHairColor());
+
+        return person;
     }
 }

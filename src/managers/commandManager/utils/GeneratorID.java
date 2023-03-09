@@ -1,8 +1,5 @@
-package models.utils;
+package managers.commandManager.utils;
 
-/**
- * Генератор id
- */
 
 public class GeneratorID {
     private static int id = 1;
