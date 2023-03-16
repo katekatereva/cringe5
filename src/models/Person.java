@@ -13,6 +13,26 @@ public class Person {
     private Country nationality; //Поле может быть null
     private Location location; //Поле не может быть null
 
+    public Person() {}
+    public Person(Person person) {
+
+        if (person != null) {
+            this.birthday = person.birthday;
+
+            this.eyeColor = person.eyeColor;
+
+            this.hairColor = person.hairColor;
+
+            this.name = person.name;
+
+            this.nationality = person.nationality;
+
+            this.location = new Location(person.location);
+        }
+
+
+    }
+
     public String getName() {
         return name;
     }
@@ -33,45 +53,50 @@ public class Person {
         return nationality;
     }
 
-    public Location getLocation() throws CloneNotSupportedException {
-        return location.clone();
+    public Location getLocation(){
+        return new Location(location);
     }
 
-    public void setName(String name) {
+    public boolean setName(String name) {
+        if (name == null) {
+            return false;
+        }
+        if (name.isBlank()) {
+            return false;
+        }
+
         this.name = name;
+        return true;
     }
 
     public void setBirthday(LocalDate birthday) {
         this.birthday = birthday;
     }
 
-    public void setEyeColor(Color eyeColor) {
+    public boolean setEyeColor(Color eyeColor) {
+        if (eyeColor == null) {
+            return false;
+        }
         this.eyeColor = eyeColor;
+        return true;
     }
 
-    public void setHairColor(models.hair.Color hairColor) {
+    public boolean setHairColor(models.hair.Color hairColor) {
         this.hairColor = hairColor;
+        return true;
     }
 
-    public void setNationality(Country nationality) {
+    public boolean setNationality(Country nationality) {
         this.nationality = nationality;
+        return true;
     }
 
-    public void setLocation(Location location) throws CloneNotSupportedException {
-        this.location = location.clone();
+    public boolean setLocation(Location location){
+        if (location == null) {
+            return false;
+        }
+        this.location = new Location(location);
+        return true;
     }
 
-    @Override
-    protected Person clone() throws CloneNotSupportedException {
-        Person person = new Person();
-
-        person.setBirthday(this.getBirthday());
-        person.setEyeColor(this.getEyeColor());
-        person.setLocation(this.getLocation());
-        person.setName(this.getName());
-        person.setNationality(this.getNationality());
-        person.setHairColor(this.getHairColor());
-
-        return person;
-    }
 }

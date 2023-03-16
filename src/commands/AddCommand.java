@@ -1,49 +1,53 @@
 package commands;
 
+import commands.interactives.add.*;
+import commands.interactives.utills.QuestionInteractive;
 import commands.request.RequestType;
 import managers.commandManager.CommandManager;
 import commands.request.CommandRequest;
+import managers.commandManager.utils.GeneratorID;
 import models.*;
 
 import java.time.LocalDate;
 import java.util.Scanner;
 
-public class AddCommand extends Command{
+public class AddCommand extends Command {
+
+    private Scanner scanner;
 
     public AddCommand(Scanner scanner) {
-        setTitle("add");
-        setDescription("добавить новый элемент в коллекцию");
+        setTarget("add");
+        setDescription("add {element} : добавить новый элемент в коллекцию");
+        this.scanner = scanner;
     }
 
     @Override
-    public CommandRequest execute(CommandManager commandManager, String arguments) throws CloneNotSupportedException {
+    public CommandRequest execute(CommandManager commandManager, String arguments) {
 
         LabWork labWork = new LabWork();
 
-
+        AddInteractiveLabWork.interactiveName(labWork, scanner);
 
         Coordinates coordinates = new Coordinates();
-        coordinates.setY(15L);
-        coordinates.setX(3.4f);
-        Person author = new Person();
-        author.setName("Ivan");
-        author.setBirthday(LocalDate.now());
-        author.setEyeColor(models.eye.Color.BLACK);
-        author.setHairColor(models.hair.Color.GREEN);
-        author.setNationality(Country.RUSSIA);
 
-        Location location = new Location();
-        location.setX(45L);
-        location.setY(43);
-        location.setZ(3L);
-        author.setLocation(location);
+        AddInteractiveCoordinate.interactiveX(coordinates, scanner);
+        AddInteractiveCoordinate.interactiveY(coordinates, scanner);
 
-        labWork.setName("Laba 1");
         labWork.setCoordinates(coordinates);
-        labWork.setMaximumPoint(15);
-        labWork.setMinimalPoint(23);
-        labWork.setDifficulty(Difficulty.INSANE);
-        labWork.setAuthor(author);
+
+        AddInteractiveLabWork.interactiveMinimalPoint(labWork, scanner);
+        AddInteractiveLabWork.interactiveMaximumPoint(labWork, scanner);
+
+
+        if (QuestionInteractive.yesOrNoQuestion("Вы хотите добавить сложность работы?", scanner)) {
+            AddInteractiveLabWork.interactiveDifficulty(labWork, scanner);
+        }
+
+        if (QuestionInteractive.yesOrNoQuestion("Вы хотите добавить автора?", scanner)) {
+            Person author = new Person();
+            AddInteractivePerson.interactivePerson(author, scanner);
+            labWork.setAuthor(author);
+        }
 
         CommandRequest commandRequest = new CommandRequest();
 

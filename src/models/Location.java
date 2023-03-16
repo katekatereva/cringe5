@@ -5,16 +5,29 @@ public class Location {
     private long y;
     private Long z; //Поле не может быть null
 
-    public void setX(Long x) {
+    public Location() {}
+    public Location(Location location) {
+
+        if (location != null) {
+            this.x = location.x;
+            this.y = location.y;
+            this.z = location.z;
+        }
+    }
+
+    public boolean setX(Long x) {
         this.x = x;
+        return true;
     }
 
-    public void setY(long y) {
+    public boolean setY(long y) {
         this.y = y;
+        return true;
     }
 
-    public void setZ(Long z) {
+    public boolean setZ(Long z) {
         this.z = z;
+        return true;
     }
 
     public Long getX() {
@@ -29,11 +42,4 @@ public class Location {
         return z;
     }
 
-    @Override
-    public Location clone() throws CloneNotSupportedException {
-        Location location = new Location();
-        location.setX(this.getX());
-        location.setY(this.getY());
-        return location;
-    }
 }

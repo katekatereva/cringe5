@@ -1,26 +1,23 @@
 package commands;
 
+import client.Pam;
 import commands.request.CommandRequest;
 import commands.request.RequestType;
 import managers.commandManager.CommandManager;
 
-import java.util.Map;
+public class ExitCommand extends Command{
 
-public class HelpCommand extends Command{
 
-    public HelpCommand() {
-        setTarget("help");
-        setDescription("help : вывести справку по доступным командам");
+    public ExitCommand() {
+        setTarget("exit");
+        setDescription("exit : завершить программу (без сохранения в файл)");
     }
 
     @Override
     public CommandRequest execute(CommandManager commandManager, String arguments) {
-        for (Map.Entry<String, Command> command : commandManager.getCommands().entrySet()) {
-            System.out.println(command.getValue().getDescription());
-        }
-
         CommandRequest commandRequest = new CommandRequest();
         commandRequest.setRequestType(RequestType.INTERNAL);
+        Pam.exit();
         return commandRequest;
     }
 }

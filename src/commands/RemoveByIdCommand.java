@@ -1,6 +1,5 @@
 package commands;
 
-import commands.Command;
 import commands.request.CommandRequest;
 import commands.request.RequestType;
 import managers.commandManager.CommandManager;
@@ -12,17 +11,19 @@ import java.util.Scanner;
 public class RemoveByIdCommand extends Command {
 
     private Scanner scanner;
+
     public RemoveByIdCommand(Scanner scanner) {
-        setTitle("remove_by_id");
-        setDescription("удалить элемент из коллекции по его id");
+        setTarget("remove_by_id");
+        setDescription("remove_by_id id : удалить элемент из коллекции по его id");
         this.scanner = scanner;
     }
+
     @Override
-    public CommandRequest execute(CommandManager commandManager, String arguments) throws CloneNotSupportedException {
+    public CommandRequest execute(CommandManager commandManager, String arguments) {
 
         Map<String, Object> parameters = new HashMap<>();
 
-        try{
+        try {
             int id = Integer.parseInt(arguments);
             parameters.put("id", id);
             CommandRequest commandRequest = new CommandRequest();

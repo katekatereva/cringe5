@@ -2,6 +2,6 @@ package commands.request;
 
 public enum RequestType {
 
-    CREATE, GET, UPDATE, DELETE, INTERNAL
+    CREATE, GET, GET_FIRST, UPDATE, DELETE, INTERNAL
 
 }

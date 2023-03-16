@@ -1,6 +1,8 @@
 package models;
 
+import javax.swing.*;
 import java.time.LocalDate;
+import java.util.Objects;
 
 public class LabWork {
     private Integer id; //Поле не может быть null, Значение поля должно быть больше 0, Значение этого поля должно быть уникальным, Значение этого поля должно генерироваться автоматически
@@ -12,6 +14,40 @@ public class LabWork {
     private Difficulty difficulty; //Поле может быть null
     private Person author; //Поле может быть null
 
+    public LabWork() {
+    }
+    public LabWork(LabWork labWork) {
+
+        if (labWork != null) {
+
+
+            if (labWork.creationDate != null) {
+                this.creationDate = labWork.creationDate;
+            }
+
+            if (labWork.author != null) {
+                this.author = new Person(labWork.author);
+            }
+
+            if (labWork.coordinates != null) {
+                this.coordinates = new Coordinates(labWork.coordinates);
+            }
+
+            if (labWork.difficulty != null) {
+                this.difficulty = labWork.difficulty;
+            }
+            if (labWork.maximumPoint != null) {
+                this.maximumPoint = labWork.maximumPoint;
+
+            }
+
+            this.id = labWork.id;
+            this.minimalPoint = labWork.minimalPoint;
+            this.name = labWork.name;
+        }
+
+    }
+
     public Integer getId() {
         return id;
     }
@@ -20,8 +56,8 @@ public class LabWork {
         return name;
     }
 
-    public Coordinates getCoordinates() throws CloneNotSupportedException {
-        return coordinates.clone();
+    public Coordinates getCoordinates() {
+        return new Coordinates(this.coordinates);
     }
 
     public LocalDate getCreationDate() {
@@ -40,66 +76,79 @@ public class LabWork {
         return difficulty;
     }
 
-    public Person getAuthor() throws CloneNotSupportedException {
-        return author.clone();
+    public Person getAuthor() {
+        if (this.author == null) {
+            return null;
+        }
+        return new Person(this.author);
     }
 
     public void setId(Integer id) {
         this.id = id;
     }
 
-    public void setName(String name) {
+    public boolean setName(String name) {
+
+        if (name == null) {
+            return false;
+        }
+        if (name.isBlank()) {
+            return false;
+        }
         this.name = name;
+        return true;
     }
 
-    public void setCoordinates(Coordinates coordinates) throws CloneNotSupportedException {
-        this.coordinates = coordinates.clone();
+    public void setCoordinates(Coordinates coordinates)  {
+        this.coordinates = new Coordinates(coordinates);
     }
 
     public void setCreationDate(LocalDate creationDate) {
         this.creationDate = creationDate;
     }
 
-    public void setMinimalPoint(int minimalPoint) {
+    public boolean setMinimalPoint(int minimalPoint) {
+        if (minimalPoint <= 0) {
+            return false;
+        }
         this.minimalPoint = minimalPoint;
+        return true;
     }
 
-    public void setMaximumPoint(Integer maximumPoint) {
+    public boolean setMaximumPoint(Integer maximumPoint) {
+        if (maximumPoint == null) {
+            return false;
+        }
+
+        if (maximumPoint <= 0) {
+            return false;
+        }
+
         this.maximumPoint = maximumPoint;
+        return true;
     }
     public void setDifficulty(Difficulty difficulty) {
         this.difficulty = difficulty;
     }
 
-    public void setAuthor(Person author) throws CloneNotSupportedException {
-        this.author = author.clone();
-    }
-
-
-    public void cloneShallow(LabWork labWorkCopy) throws CloneNotSupportedException{
-
-        this.setAuthor(labWorkCopy.getAuthor());
-        this.setCoordinates(labWorkCopy.getCoordinates());
-        this.setDifficulty(labWorkCopy.getDifficulty());
-        this.setMinimalPoint(labWorkCopy.getMinimalPoint());
-        this.setMaximumPoint(labWorkCopy.getMaximumPoint());
-        this.setName(labWorkCopy.getName());
+    public void setAuthor(Person author) {
+        if (author == null) {
+            this.author = null;
+        } else {
+            this.author = new Person(author);
+        }
     }
 
     @Override
-    public LabWork clone() throws CloneNotSupportedException {
-        LabWork labWork = new LabWork();
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        LabWork labWork = (LabWork) o;
+        return minimalPoint == labWork.minimalPoint && name.equals(labWork.name) && coordinates.equals(labWork.coordinates) && maximumPoint.equals(labWork.maximumPoint) && difficulty == labWork.difficulty && Objects.equals(author, labWork.author);
+    }
 
-        labWork.setId(this.getId());
-        labWork.setCreationDate(this.getCreationDate());
-
-        labWork.setAuthor(this.getAuthor());
-        labWork.setCoordinates(this.getCoordinates());
-        labWork.setDifficulty(this.getDifficulty());
-        labWork.setMinimalPoint(this.getMinimalPoint());
-        labWork.setMaximumPoint(this.getMaximumPoint());
-        labWork.setName(this.getName());
-
-        return labWork;
+    @Override
+    public int hashCode() {
+        return Objects.hash(name, coordinates, minimalPoint, maximumPoint, difficulty, author);
     }
 }

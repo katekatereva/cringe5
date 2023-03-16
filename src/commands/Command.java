@@ -5,14 +5,14 @@ import commands.request.CommandRequest;
 
 public abstract class Command {
 
-    private String title;
+    private String target;
     private String description;
-    public String getTitle() {
-        return title;
+    public String getTarget() {
+        return target;
     }
 
-    public void setTitle(String title) {
-        this.title = title;
+    public void setTarget(String target) {
+        this.target = target;
     }
 
     public String getDescription() {
@@ -23,6 +23,6 @@ public abstract class Command {
         this.description = description;
     }
 
-    public abstract CommandRequest execute(CommandManager commandManager, String arguments) throws CloneNotSupportedException;
+    public abstract CommandRequest execute(CommandManager commandManager, String arguments);
 
 }

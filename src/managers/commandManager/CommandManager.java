@@ -11,10 +11,7 @@ import dao.LabWorkFileDAO;
 import models.LabWork;
 
 import java.lang.reflect.Field;
-import java.util.ArrayDeque;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Scanner;
+import java.util.*;
 
 public class CommandManager {
     private Map<String, Command> commands;
@@ -30,7 +27,7 @@ public class CommandManager {
         this.scanner = scanner;
     }
     public void addCommand(Command command) {
-        commands.put(command.getTitle(), command);
+        commands.put(command.getTarget(), command);
     }
 
     public Map<String, Command> getCommands() {
@@ -38,7 +35,7 @@ public class CommandManager {
     }
 
 
-    public CommandResponse handleCommandType(String commandType) throws CloneNotSupportedException, NoSuchFieldException {
+    public CommandResponse handleCommandType(String commandType) throws NoSuchFieldException {
 
         String[] commandSplit = CommandSplitService.splitCommandType(commandType);
 
@@ -55,7 +52,128 @@ public class CommandManager {
 
     }
 
-    public CommandResponse getResponse(CommandRequest commandRequest) throws CloneNotSupportedException, NoSuchFieldException {
+
+    private void handleRequestType(CommandRequest commandRequest, CommandResponse commandResponse) throws NoSuchFieldException {
+        switch (commandRequest.getRequestType()) {
+            case CREATE -> {
+                dao.create((LabWork) commandRequest.getObject());
+                commandResponse.setObject(commandRequest.getObject());
+                commandResponse.setResponseType(ResponseType.OK);
+
+//
+//                for (Map.Entry<Integer, Integer> entry : dao.getHashList().entrySet()){
+//                    System.out.printf("%d %d", entry.getKey(), entry.getValue());
+//                    System.out.println();
+//                }
+
+            }
+            case GET -> {
+                if (commandRequest.getParameters() == null) {
+                    commandResponse.setObject(dao.getAll());
+                    commandResponse.setTypeOfObject(ArrayDeque.class);
+                    commandResponse.setResponseType(ResponseType.OK);
+                } else {
+                    Map<String, Object> parameters = commandRequest.getParameters();
+
+                    ArrayDeque<LabWork> labWorks = dao.getAll();
+
+                    ArrayDeque<LabWork> getLabWorks = new ArrayDeque<>();
+
+                    for (LabWork labWork : labWorks) {
+
+                        boolean isGet = true;
+
+                        for (Map.Entry<String, Object> parameter : parameters.entrySet()) {
+                            Field field = labWork.getClass().getDeclaredField(parameter.getKey());
+                            field.setAccessible(true);
+
+                            try {
+                                if (field.get(labWork) != parameter.getValue()) {
+                                    isGet = false;
+                                    break;
+                                }
+                            } catch (IllegalAccessException e) {
+                                commandResponse.setResponseType(ResponseType.MANAGER_ERROR);
+                                return;
+                            }
+
+                        }
+
+                        if (isGet) {
+                            getLabWorks.addLast(new LabWork(labWork));
+                        }
+
+                    }
+
+                    commandResponse.setObject(getLabWorks);
+                    commandResponse.setTypeOfObject(ArrayDeque.class);
+                    commandResponse.setResponseType(ResponseType.OK);
+
+
+
+                }
+            }
+            case GET_FIRST -> {
+                try {
+                    commandResponse.setObject(dao.getFirst());
+                    commandResponse.setTypeOfObject(LabWork.class);
+                    commandResponse.setResponseType(ResponseType.OK);
+                } catch (NoSuchElementException noSuchElementException) {
+                    commandResponse.setResponseType(ResponseType.NOT_FOUND);
+                }
+            }
+            case DELETE -> {
+                Map<String, Object> parameters = commandRequest.getParameters();
+
+                if (commandRequest.getParameters() != null) {
+
+                    ArrayDeque<LabWork> labWorks = dao.getAll();
+
+                    for (LabWork labWork : labWorks) {
+
+                        boolean isDelete = true;
+                        for (Map.Entry<String, Object> parameter : parameters.entrySet()) {
+                            Field field = labWork.getClass().getDeclaredField(parameter.getKey());
+                            field.setAccessible(true);
+                            try {
+                                if (field.get(labWork) != parameter.getValue()) {
+                                    isDelete = false;
+                                    break;
+                                }
+                            } catch (IllegalAccessException e) {
+                                commandResponse.setResponseType(ResponseType.MANAGER_ERROR);
+                                return;
+                            }
+                        }
+
+                        if (isDelete) {
+                            dao.delete(labWork);
+                        }
+                    }
+
+                } else {
+                    dao.clear();
+                }
+                commandResponse.setResponseType(ResponseType.OK);
+
+            }
+
+            case UPDATE -> {
+                LabWork labWork = (LabWork) commandRequest.getObject();
+                dao.update(labWork.getId(), labWork);
+                commandResponse.setResponseType(ResponseType.OK);
+
+            }
+        }
+
+    }
+
+
+    public CommandResponse getResponse(CommandRequest commandRequest) throws NoSuchFieldException{
+
+        if (commandRequest == null) {
+            return null;
+        }
 
         CommandResponse commandResponse = new CommandResponse();
         if (commandRequest.getRequestType() == RequestType.INTERNAL) {
@@ -63,50 +181,7 @@ public class CommandManager {
         }
 
         else {
-
-            switch (commandRequest.getRequestType()) {
-                case CREATE -> {
-                    dao.create((LabWork) commandRequest.getObject());
-                    commandResponse.setObject(commandRequest.getObject());
-                }
-                case GET -> {
-                    if (commandRequest.getParameters() == null) {
-                        commandResponse.setObject(dao.getAll());
-                        commandResponse.setTypeOfObject(ArrayDeque.class);
-                    }
-                }
-                case DELETE -> {
-                    Map<String, Object> parameters = commandRequest.getParameters();
-
-                    if (commandRequest.getParameters() != null) {
-
-                        ArrayDeque<LabWork> labWorks = dao.getAll();
-
-                        for (LabWork labWork : labWorks) {
-
-                            boolean isDelete = true;
-                            for (Map.Entry<String, Object> parameter : parameters.entrySet()) {
-                                Field field = labWork.getClass().getDeclaredField(parameter.getKey());
-                                field.setAccessible(true);
-                                try {
-                                    if (field.get(labWork) != parameter.getValue()) {
-                                        isDelete = false;
-                                        break;
-                                    }
-                                } catch (IllegalAccessException e) {
-                                    throw new RuntimeException(e);
-                                }
-                            }
-
-                            if (isDelete) {
-                                dao.delete(labWork);
-                            }
-                        }
-
-                    }
-                }
-            }
-
+            handleRequestType(commandRequest, commandResponse);
         }
 
         return commandResponse;
