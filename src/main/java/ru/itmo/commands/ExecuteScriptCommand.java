@@ -1,6 +1,8 @@
 package ru.itmo.commands;
 
 import ru.itmo.commands.request.CommandRequest;
+import ru.itmo.commands.request.RequestType;
+import ru.itmo.commands.utills.CommandSplitService;
 import ru.itmo.managers.commandManager.CommandManager;
 
 import java.io.File;
@@ -10,13 +12,16 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Objects;
 import java.util.Scanner;
 
 public class ExecuteScriptCommand extends Command{
 
-    private Scanner scanner;
-    public ExecuteScriptCommand(Scanner scanner) {
+    private final Scanner scanner;
+    private final ArrayList<String> executedFiles;
+    public ExecuteScriptCommand(Scanner scanner, ArrayList<String> executedFiles) {
         this.scanner = scanner;
+        this.executedFiles = executedFiles;
         setTargetTitleForUserInput("execute_script");
         setDescription("execute_script file_name : считать и исполнить скрипт из указанного файла. В скрипте содержатся команды в таком же виде, в котором их вводит пользователь в интерактивном режиме.");
     }
@@ -24,11 +29,18 @@ public class ExecuteScriptCommand extends Command{
 
     @Override
     public CommandRequest execute(CommandManager commandManager, String arguments) {
-        CommandRequest commandRequest = new CommandRequest();
-        System.out.println("Введите путь до файла со скриптом: ");
-        String pathToFileWithScript = scanner.nextLine();
 
-        ArrayList<String> executedFiles = new ArrayList<>();
+        CommandRequest commandRequest = new CommandRequest();
+        String pathToFileWithScript = "";
+        if (arguments == null) {
+            while (pathToFileWithScript.isBlank()) {
+                System.out.print("Введите путь до файла со скриптом: ");
+                pathToFileWithScript = scanner.nextLine();
+            }
+        } else {
+            pathToFileWithScript = arguments;
+        }
+
 
         Path file = Paths.get(pathToFileWithScript);
 
@@ -38,7 +50,23 @@ public class ExecuteScriptCommand extends Command{
             try (Scanner scannerForFile = new Scanner(file.toFile())) {
                 while (scannerForFile.hasNext()) {
                     String command = scannerForFile.nextLine();
-                    commandManager.handleCommandType(command);
+
+                    String[] commandSplit = CommandSplitService.splitCommandType(command);
+
+                    if (Objects.equals(commandSplit[0], getTargetTitleForUserInput())) {
+                        if (executedFiles.contains(commandSplit[1])) {
+                            System.out.printf("Файл %s уже был исполнен", commandSplit[1]);
+                            System.out.println();
+                        }
+                        else {
+                            commandManager.handleCommandType(command);
+                            executedFiles.add(commandSplit[1]);
+                        }
+                    }
+                    else {
+                        commandManager.handleCommandType(command);
+                    }
+
                 }
             } catch (FileNotFoundException e) {
                 System.out.println("Во время чтения файла со скриптами произошла ошибка");
@@ -49,6 +77,7 @@ public class ExecuteScriptCommand extends Command{
             System.out.println("Программа не смогла получить доступ к файлу для чтения");
         }
 
+        commandRequest.setRequestType(RequestType.INTERNAL);
         return commandRequest;
 
     }

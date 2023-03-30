@@ -8,6 +8,8 @@ import ru.itmo.commands.response.ResponseType;
 import ru.itmo.managers.commandManager.CommandManager;
 
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.NoSuchElementException;
 import java.util.Scanner;
 public class Pam {
@@ -39,6 +41,10 @@ public class Pam {
         Command infoCommand = new InfoCommand();
         Command removeAnyByDifficultyCommand = new RemoveAnyByDifficultyCommand(scanner);
         Command removeGreaterCommand = new RemoveGreaterCommand(scanner);
+        Command printFieldDescendingMinimalPointCommand = new PrintFieldDescendingMinimalPointCommand();
+
+        ArrayList<String> executedFiles = new ArrayList<>();
+        Command executeScriptCommand = new ExecuteScriptCommand(scanner, executedFiles);
 
 
         commandManager.setScanner(scanner);
@@ -57,49 +63,40 @@ public class Pam {
         commandManager.addCommand(infoCommand);
         commandManager.addCommand(removeAnyByDifficultyCommand);
         commandManager.addCommand(removeGreaterCommand);
+        commandManager.addCommand(executeScriptCommand);
+        commandManager.addCommand(printFieldDescendingMinimalPointCommand);
 
 
         try {
 
-            if (!commandManager.initialDataManager()) {
-                exit();
-            }
+            if (commandManager.initialDataManager() && commandManager.importData()) {
+                while (isActiveClient) {
 
-            if (!commandManager.importData()) {
-                exit();
-            }
+                    System.out.print("Введите команду: ");
+                    String commandType = scanner.nextLine();
 
+                    if (!commandType.isBlank()) {
+                        CommandResponse commandResponse = commandManager.handleCommandType(commandType);
 
-
-            while (isActiveClient) {
-
-
-                System.out.print("Введите команду: ");
-                String commandType = scanner.nextLine();
-
-                if (!commandType.isBlank()) {
-                    CommandResponse commandResponse = commandManager.handleCommandType(commandType);
-
-                    if (commandResponse == null) {
-                        System.out.println("Такая команда не найдена");
-                    } else {
-
-                        if (commandResponse.getResponseType() == ResponseType.OK) {
-                            System.out.println("Команда успешно выполнена");
+                        if (commandResponse == null) {
+                            System.out.println("Такая команда не найдена");
+                        } else {
+                            if (commandResponse.getResponseType() == ResponseType.OK) {
+                                System.out.println("Команда успешно выполнена");
+                            } else if (commandResponse.getResponseType() == ResponseType.BAD_REQUEST) {
+                                System.out.println("Менеджер не смог обработать запрос");
+                            } else if (commandResponse.getResponseType() == ResponseType.MANAGER_ERROR) {
+                                System.out.println("Во время работы менеджера произошла ошибка");
+                            } else if (commandResponse.getResponseType() == ResponseType.NOT_FOUND) {
+                                System.out.println("Работа не найдена");
+                            }
                         }
-                        else if (commandResponse.getResponseType() == ResponseType.BAD_REQUEST) {
-                            System.out.println("Менеджер не смог обработать запрос");
-                        } else if (commandResponse.getResponseType() == ResponseType.MANAGER_ERROR) {
-                            System.out.println("Во время работы менеджера произошла ошибка");
-                        } else if (commandResponse.getResponseType() == ResponseType.NOT_FOUND) {
-                            System.out.println("Работа не найдена");
-                        }
-
                     }
+
+
                 }
-
-
             }
+
         } catch (NoSuchElementException ignored) { }
 
     }

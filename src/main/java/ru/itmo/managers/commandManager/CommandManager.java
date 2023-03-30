@@ -17,6 +17,7 @@ import ru.itmo.managers.dataManager.response.DataResponse;
 import ru.itmo.managers.dataManager.response.DataResponseType;
 import ru.itmo.models.LabWork;
 import ru.itmo.models.Person;
+import ru.itmo.models.comparator.MinimalPointComparator;
 
 import java.lang.reflect.Field;
 import java.util.*;
@@ -47,8 +48,6 @@ public class CommandManager {
         this.dataManager = new FileDataManager(pathToFile);
         return true;
     }
-
-
 
     private boolean isRecreateFile() {
         if (QuestionInteractive.yesOrNoQuestion("Хотите попробовать пересоздать файл?", scanner)) {
@@ -298,6 +297,16 @@ public class CommandManager {
                 commandResponse.setResponseType(ResponseType.OK);
 
 
+            } case GET_MINIMAL_POINT -> {
+
+                ArrayList<Integer> minimalPoints = new ArrayList<>();
+                for (LabWork labWork : dao.getAll()) {
+                    minimalPoints.add(labWork.getMinimalPoint());
+                }
+
+                minimalPoints.sort(Collections.reverseOrder());
+                commandResponse.setObject(minimalPoints);
+                commandResponse.setResponseType(ResponseType.OK);
             }
         }
 

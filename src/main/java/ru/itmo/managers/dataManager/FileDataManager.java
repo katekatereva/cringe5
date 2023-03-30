@@ -6,7 +6,7 @@ import ru.itmo.managers.dataManager.models.LabWorkCollection;
 import ru.itmo.managers.dataManager.response.DataResponse;
 import ru.itmo.managers.dataManager.response.DataResponseType;
 import ru.itmo.models.LabWork;
-import ru.itmo.utils.LabWorkValidator;
+import ru.itmo.models.utils.LabWorkValidator;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
